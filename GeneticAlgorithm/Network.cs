@@ -78,8 +78,10 @@ namespace GeneticAlgorithm
             List<double> weights = new List<double>();
             List<double> biases = new List<double>();
 
-            foreach (Layer l in Layers)
+            for (int i = 1; i < Layers.Length; i++)
             {
+                Layer l = Layers[i];
+
                 foreach (Neuron n in l.Neurons)
                 {
                     foreach (double weight in n.Weights)
@@ -99,17 +101,17 @@ namespace GeneticAlgorithm
         public void InsertGenome(Genome genome)
         {
             int ptrW = 0, ptrB = 0;
-            foreach (Layer l in Layers)
+            for (int i = 1; i < Layers.Length; i++)
             {
-                //Start of genome is weights
+                Layer l = Layers[i];
+
                 foreach (Neuron n in l.Neurons)
                 {
-                    for (int i = 0; i < n.Weights.Length; i++)
+                    for (int j = 0; j < n.Weights.Length; j++)
                     {
-                        n.Weights[i] = genome.Weights[ptrW++];
+                        n.Weights[j] = genome.Weights[ptrW++];
                     }
                 }
-                //End is biases
                 foreach (Neuron n in l.Neurons)
                 {
                     n.Bias = genome.Biases[ptrB++];

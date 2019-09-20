@@ -50,7 +50,12 @@ namespace GeneticAlgorithm
             }
 
             this.Weights = Util.Rand.NextDoubleArray(sumW);
-            this.Biases = new double[sumB];
+            this.Biases = Util.Rand.NextDoubleArray(sumB);
+            for (int i = 0; i < this.Biases.Length; i++)
+            {
+                this.Biases[i] -= 0.5;
+                this.Biases[i] *= 5;
+            }
         }
 
         //TODO: refactor and generalize crossover and mutation methods
@@ -124,7 +129,7 @@ namespace GeneticAlgorithm
             for (int i = 0; i < numMuts; i++)
             {
                 //Mutate either weight or bias based on heuristic
-                int target = Util.Rand.NextDouble() <= Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
+                int target = Util.Rand.NextDouble() <= (double)Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
 
                 int start = Util.Rand.Next(values[target].Length);
                 int end = Util.Rand.Next(values[target].Length);
@@ -138,8 +143,8 @@ namespace GeneticAlgorithm
 
                 result.values[target] = 
                     result.values[target].Take(start) //First segment
-                    .Concat(result.values[target].Skip(start).Take(end - start).Reverse()) //Reversed middle section
-                    .Concat(result.values[target].Skip(end)) //Last segment
+                    .Concat(result.values[target].Skip(start).Take(end - start + 1).Reverse()) //Reversed middle section
+                    .Concat(result.values[target].Skip(end + 1)) //Last segment
                     .ToArray();        
             }
 
@@ -153,7 +158,7 @@ namespace GeneticAlgorithm
             for (int i = 0; i < numMuts; i++)
             {
                 //Mutate either weight or bias based on heuristic
-                int target = Util.Rand.NextDouble() <= Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
+                int target = Util.Rand.NextDouble() <= (double)Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
 
                 int start = Util.Rand.Next(values[target].Length);
                 int end = Util.Rand.Next(values[target].Length);
@@ -167,54 +172,48 @@ namespace GeneticAlgorithm
 
                 result.values[target] =
                     result.values[target].Take(start) //First segment
-                    .Concat(result.values[target].Skip(start).Take(end - start).OrderBy(x => Util.Rand.Next())) //Scrambled middle section
-                    .Concat(result.values[target].Skip(end)) //Last segment
+                    .Concat(result.values[target].Skip(start).Take(end - start + 1).OrderBy(x => Util.Rand.Next())) //Scrambled middle section
+                    .Concat(result.values[target].Skip(end + 1)) //Last segment
                     .ToArray();
             }
 
             return result;
         }
 
-        public Genome MutationSwap(int maxMuts, double mutChance)
+        public Genome MutationSwap(int numMuts)
         {
             Genome result = new Genome(this);
 
-            for (int i = 0; i < Util.Rand.Next(maxMuts); i++)
+            for (int i = 0; i < numMuts; i++)
             {
-                //Mutate either weight or bias based on heuristic
-                if (Util.Rand.NextDouble() <= mutChance)
-                {
-                    int target = Util.Rand.NextDouble() <= Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
+                //Mutate either weight or bias based on heuristic 
+                int target = Util.Rand.NextDouble() <= (double)Weights.Length / (Weights.Length + Biases.Length) ? 0 : 1;
 
-                    int indexA = Util.Rand.Next(values[target].Length);
-                    int indexB = Util.Rand.Next(values[target].Length);
+                int indexA = Util.Rand.Next(values[target].Length);
+                int indexB = Util.Rand.Next(values[target].Length);
 
-                    double temp = result.values[target][indexA];
-                    result.values[target][indexA] = result.values[target][indexB];
-                    result.values[target][indexB] = temp;
-                }
+                double temp = result.values[target][indexA];
+                result.values[target][indexA] = result.values[target][indexB];
+                result.values[target][indexB] = temp;
             }
 
             return result;
         }
 
-        public Genome MutationDelta(int maxMuts, double mutChance, double maxWeightDelta, double maxBiasDelta)
+        public Genome MutationDelta(int numMuts, double maxWeightDelta, double maxBiasDelta)
         {
             Genome result = new Genome(this);
 
-            for (int i = 0; i < Util.Rand.Next(maxMuts); i++)
+            for (int i = 0; i < numMuts; i++)
             {
-                if (Util.Rand.NextDouble() <= mutChance)
+                //Mutate either weight or bias based on heuristic
+                if (Util.Rand.NextDouble() <= (double)Weights.Length / (Weights.Length + Biases.Length))
                 {
-                    //Mutate either weight or bias based on heuristic
-                    if (Util.Rand.NextDouble() <= Weights.Length / (Weights.Length + Biases.Length))
-                    {
-                        result.Weights[Util.Rand.Next(Weights.Length)] += maxWeightDelta * ((Util.Rand.NextDouble() - 0.5) * 2);
-                    }
-                    else
-                    {
-                        result.Biases[Util.Rand.Next(Weights.Length)] += maxBiasDelta * ((Util.Rand.NextDouble() - 0.5) * 2);
-                    }
+                    result.Weights[Util.Rand.Next(Weights.Length)] += maxWeightDelta * ((Util.Rand.NextDouble() - 0.5) * 2);
+                }
+                else
+                {
+                    result.Biases[Util.Rand.Next(Biases.Length)] += maxBiasDelta * ((Util.Rand.NextDouble() - 0.5) * 2);
                 }
             }
 

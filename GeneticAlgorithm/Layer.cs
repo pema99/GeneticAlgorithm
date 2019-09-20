@@ -11,7 +11,7 @@ namespace GeneticAlgorithm
             this.Neurons = new Neuron[neurons];
             for (int i = 0; i < neurons; i++)
             {
-                this.Neurons[i] = new Neuron(Util.Rand.NextDoubleArray(prevLayerNeurons));
+                this.Neurons[i] = new Neuron(new double[prevLayerNeurons], 0);
             }
         }
 

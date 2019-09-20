@@ -19,17 +19,5 @@ namespace GeneticAlgorithm
             this.Weights = weights;
             this.Bias = bias;
         }
-
-        public double Eval(double[] inputs)
-        {
-            double sum = 0;
-            for (int i = 0; i < inputs.Length; i++)
-            {
-                sum += inputs[i] * Weights[i];
-            }
-            sum += Bias;
-            sum = Util.Sigmoid(sum);
-            return sum;
-        }
     }
 }
